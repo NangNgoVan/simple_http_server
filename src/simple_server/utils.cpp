@@ -18,3 +18,17 @@ Utils::SplitString(std::string str, char token)
 
     return result;
 }
+
+std::string Utils::JoinStrings(std::vector<std::string> splits, char token)
+{
+    std::string result;
+
+    for (int i = 0; i < splits.size() - 1; i++) 
+    {
+        result += splits[i] + token;
+    }
+
+    result += splits[splits.size()-1];
+
+    return result;
+};

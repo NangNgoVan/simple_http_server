@@ -11,29 +11,27 @@ int main(int argc, char **argv)
 
     SimpleServer server;
 
-    string host = "0.0.0.0";
     int port = 8080;
 
     try {
 
-        server.addRequestHandler("/", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
+        server.addRequestHandler("/hello", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
+            res.setStatusCode(HttpResponse::OK);
+            res.setHeader("Content-Type", "text/plan");
             res.sendText("Hello world!");
         });
-        server.addRequestHandler("/x", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
-            
+
+        server.addRequestHandler("/", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
+            res.setHeader("Content-Type", "text/html");
+            res.setHeader("Connection", "Keep-Alive");
+            res.sendFile("index.html");
         });
 
-
-
         server.listen(port);
-        cout << "Listening on host: " << host
+        cout << "Listening on host: " << server.getHost()
                             << ", port: " << port << "\n";
 
-        // //Stop server
-        // cout << "Press any key to stop.\n";
-        // cin.get();
-        
-        server.stop();
+        // server.stop();
     }
     catch(Exception::InternalServerError &err)
     {
@@ -42,3 +40,4 @@ int main(int argc, char **argv)
     
     return 0;
 }
+

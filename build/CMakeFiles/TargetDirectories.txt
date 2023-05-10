@@ -1,0 +1,3 @@
+/Users/nangngo/Desktop/Projects/C_CPP/nangnv_simple_http_server/build/CMakeFiles/main.dir
+/Users/nangngo/Desktop/Projects/C_CPP/nangnv_simple_http_server/build/CMakeFiles/edit_cache.dir
+/Users/nangngo/Desktop/Projects/C_CPP/nangnv_simple_http_server/build/CMakeFiles/rebuild_cache.dir

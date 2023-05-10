@@ -4,6 +4,7 @@
 #include <iostream>
 #include <functional>
 #include <map>
+#include <thread>
 
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,9 @@ class SimpleServer
 public:
     SimpleServer(string host = "0.0.0.0");
     ~SimpleServer();
+
+    std::string getHost();
+    
     void listen(
         int port);
     
@@ -36,14 +40,19 @@ public:
 private:
     string m_host;
     int m_sockFd;
+    int m_maxConnectionInQueue;
     bool m_isRunning;
 
     std::map<std::string, 
         REQUEST_HANDLER> m_handlerMap;
-        
+
     REQUEST_HANDLER *getRequestHandler(std::string path);
 
     void waitForClientConnection();
+    void handleRequest(int clientSocket);
+
+    //
+    std::vector<std::thread*> m_manager;
 
 };
 

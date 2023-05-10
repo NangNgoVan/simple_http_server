@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>Simple http server</title>
+    </head>
+    <body>
+        <h1>Simple Http server</h1>
+        <p>This is a mini project for the Dynamic Technology Lab's test.</p>
+        <hr/>
+        <h2>Applicant information:</h2>
+        <ul>
+            <li>Ngô Văn Năng</li>
+            <li>Nangnv2641@gmail.com</li>
+            <li>0967963970</li>
+        </ul>
+        <hr/>
+        Current time: <p id="time"></p>
+        <script>
+            setInterval(function(){
+                const d = new Date();
+                document.getElementById("time").innerHTML = d;
+            }, 1);
+        </script>
+    </body>
+</html>

@@ -2,7 +2,8 @@
 
 SimpleServer::SimpleServer(string host) : m_sockFd(-1),
                                           m_host(host),
-                                          m_isRunning(false)
+                                          m_isRunning(false),
+                                          m_maxConnectionInQueue(10000)
 {
     // create a new socket
     m_sockFd = socket(AF_INET, SOCK_STREAM, 0);
@@ -10,7 +11,16 @@ SimpleServer::SimpleServer(string host) : m_sockFd(-1),
 
 SimpleServer::~SimpleServer()
 {
-    // stop();
+    stop();
+    for (auto t : m_manager) {
+        t->join();
+        delete t;
+    }
+}
+
+std::string SimpleServer::getHost()
+{
+    return m_host;
 }
 
 void SimpleServer::listen(
@@ -48,10 +58,7 @@ void SimpleServer::listen(
         throw Exception::InternalServerError("Bind socket error");
     }
 
-    // Maximum of backlog
-    int maximumBacklog = 5;
-
-    if (::listen(m_sockFd, maximumBacklog) < 0)
+    if (::listen(m_sockFd, m_maxConnectionInQueue) < 0)
     {
         // Listen error
         close(m_sockFd);
@@ -74,71 +81,13 @@ void SimpleServer::waitForClientConnection()
 
     int c_socket = ::accept(m_sockFd, (sockaddr *)&c_addr, (socklen_t *)&addrlen);
 
-    if (c_socket < 0)
-    {
-        // Error
-        close(c_socket);
-    }
-
-    // cout << "New connection commning\n";
-    char buffer[1024] = {0};
-
-    int valread = read(c_socket, buffer, 1024);
-
-    if (valread < 0)
-    {
-        // Error
-        cout << "Error when read buffer";
-        close(c_socket);
-    }
-
-    cout << buffer << "\n";
-
-    HttpRequest req;
-
-    try
-    {
-        req.parse(buffer);
-
-        REQUEST_HANDLER *handler = getRequestHandler(req.getPath());
-        HttpResponse res;
-
-        if (handler)
-        {
-            
-
-            res.prepareStatusLine(req.getVersion(), HttpMessage::OK);
-
-            (*handler)(req, res);
-
-            //
-            res.setHeader("Content-Type", "text/html");
-
-            std::string responseResult = res.toString();
-            send(c_socket, responseResult.c_str(), sizeof(responseResult.c_str()), 0);
-        }
-
-        else
-        {
-            // not found
-            // res.prepareStatusLine(req.getVersion(), HttpMessage::INTER)
-            // throw 
-        }
-    }
-    catch (Exception::HttpMessageParseError &err)
-    {
-        // parse error
-        cout << "Parse error";
-    }
-
-    bzero(buffer, 1024);
-
-    close(c_socket);
+    handleRequest(c_socket);
+    // std::thread *t = new std::thread(&SimpleServer::handleRequest, this, c_socket);
+    // m_manager.push_back(t);
 }
 
 void SimpleServer::stop()
 {
-    cout << "Stop simple server\n";
     close(m_sockFd);
 }
 
@@ -156,3 +105,60 @@ REQUEST_HANDLER *SimpleServer::getRequestHandler(std::string path)
 
     return &m_handlerMap[path];
 };
+
+void SimpleServer::handleRequest(int clientSocket)
+{
+    if (clientSocket < 0)
+    {
+        // Error
+        close(clientSocket);
+    }
+
+    char buffer[1024] = {0};
+
+    int valread = read(clientSocket, buffer, 1024);
+
+    if (valread < 0)
+    {
+        // Error
+        perror("Error when read buffer\n");
+        close(clientSocket);
+    }
+
+    try
+    {
+        HttpRequest req;
+        req.parse(buffer);
+
+        REQUEST_HANDLER *handler = getRequestHandler(req.getPath());
+        HttpResponse res;
+
+        if (handler)
+        {
+            
+            res.setStatusCode(HttpResponse::OK);
+
+            (*handler)(req, res);
+
+            std::string responseResult = res.toString();
+
+            int sended = send(clientSocket, responseResult.c_str(), responseResult.size(), 0);
+
+            if (sended < 0) {
+                //Send error
+                perror("Send data error!");
+            }
+        }
+        else
+        {
+            // perror("Request handler not found\n");
+        }
+    }
+    catch (Exception::HttpMessageParseError &err)
+    {
+        perror("Http parse message error!\n");
+    }
+
+    bzero(buffer, 1024);
+    close(clientSocket);
+}

@@ -10,8 +10,9 @@ public:
         HttpVersion version = HttpVersion::HTTP1_1);
 
     void sendText(const std::string &text);
-    void prepareStatusLine(HttpVersion version,
-                           HttpStatusCode code);
+    void sendFile(const std::string &filePath);
+
+    void setStatusCode(HttpStatusCode code);
 
     std::string toString();
 

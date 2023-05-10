@@ -52,6 +52,7 @@ void HttpRequest::parseStartLine(std::string line)
 
     if (splited.size() != 3)
     {
+        perror("Http request start line invalid");
         throw Exception::HttpMessageParseError();
     }
 
