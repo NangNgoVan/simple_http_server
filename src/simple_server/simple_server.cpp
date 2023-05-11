@@ -12,10 +12,6 @@ SimpleServer::SimpleServer(string host) : m_sockFd(-1),
 SimpleServer::~SimpleServer()
 {
     stop();
-    for (auto t : m_manager) {
-        t->join();
-        delete t;
-    }
 }
 
 std::string SimpleServer::getHost()
@@ -36,10 +32,10 @@ void SimpleServer::listen(
 
     if (setsockopt(m_sockFd, SOL_SOCKET,
                    SO_REUSEADDR | SO_REUSEPORT, &opt,
-                   sizeof(opt)))
+                   sizeof(opt)) < 0)
     {
-
-        // throw Exception::InternalServerError("Socket option error!");
+        close(m_sockFd);
+        throw Exception::InternalServerError("Socket reused error!");
     }
 
     struct sockaddr_in s_addr;
@@ -65,25 +61,44 @@ void SimpleServer::listen(
         throw Exception::InternalServerError("Cannot listen on port!");
     }
 
+    cout << "Server listening: " << m_maxConnectionInQueue << " connections.\n";
+
     m_isRunning = true;
 
-    while (1)
-    {
-        waitForClientConnection();
-    }
-}
+    
 
-void SimpleServer::waitForClientConnection()
-{
-    //
     struct sockaddr_in c_addr;
     int addrlen = sizeof(c_addr);
 
-    int c_socket = ::accept(m_sockFd, (sockaddr *)&c_addr, (socklen_t *)&addrlen);
+    while (1)
+    {
+        int c_socket = ::accept(m_sockFd, (sockaddr *)&c_addr, (socklen_t *)&addrlen);
 
-    handleRequest(c_socket);
-    // std::thread *t = new std::thread(&SimpleServer::handleRequest, this, c_socket);
-    // m_manager.push_back(t);
+        // if (c_socket < 0)
+        // {
+        //     close(c_socket);
+        // }
+
+        // char buffer[1024] = {0};
+
+        // int valread = read(c_socket, buffer, 1024);
+
+        // if (valread < 0)
+        // {
+        //     perror("Error when read buffer\n");
+        //     close(c_socket);
+        // }
+        // bzero(buffer, 1024);
+
+
+        // std::cout << "add task\n";
+        handleRequest(c_socket);
+
+        // m_manager.addTask([this, &c_socket](){
+        //     std::cout << "socket: " << c_socket << "\n";
+        //     handleRequest(c_socket);
+        // });
+    }
 }
 
 void SimpleServer::stop()
@@ -106,11 +121,10 @@ REQUEST_HANDLER *SimpleServer::getRequestHandler(std::string path)
     return &m_handlerMap[path];
 };
 
-void SimpleServer::handleRequest(int clientSocket)
+void SimpleServer::handleRequest(const int &clientSocket)
 {
     if (clientSocket < 0)
     {
-        // Error
         close(clientSocket);
     }
 
@@ -120,7 +134,6 @@ void SimpleServer::handleRequest(int clientSocket)
 
     if (valread < 0)
     {
-        // Error
         perror("Error when read buffer\n");
         close(clientSocket);
     }
@@ -145,7 +158,6 @@ void SimpleServer::handleRequest(int clientSocket)
             int sended = send(clientSocket, responseResult.c_str(), responseResult.size(), 0);
 
             if (sended < 0) {
-                //Send error
                 perror("Send data error!");
             }
         }

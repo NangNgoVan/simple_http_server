@@ -15,10 +15,9 @@
 #include "exceptions.h"
 #include "http_request.h"
 #include "http_response.h"
+#include "request_manager.h"
 
 using namespace std;
-
-typedef std::function<void(HttpRequest&, HttpResponse&)> REQUEST_HANDLER;
 
 class SimpleServer
 {
@@ -48,11 +47,10 @@ private:
 
     REQUEST_HANDLER *getRequestHandler(std::string path);
 
-    void waitForClientConnection();
-    void handleRequest(int clientSocket);
+    void handleRequest(const int &clientSocket);
 
     //
-    std::vector<std::thread*> m_manager;
+    RequestManager m_manager;
 
 };
 
