@@ -6,15 +6,17 @@
 
 #include "exceptions.h"
 
-class HttpMessage 
+class HttpMessage
 {
 public:
-    enum HttpVersion {
+    enum HttpVersion
+    {
         HTTP1_0,
         HTTP1_1
     };
 
-    enum HttpMethod {
+    enum HttpMethod
+    {
         GET = 0,
         HEAD,
         POST,
@@ -26,7 +28,8 @@ public:
         PATH,
     };
 
-    enum HttpStatusCode {
+    enum HttpStatusCode
+    {
         CONTINUE = 100,
         SWITCHING_PROTOCOL = 101,
         PROCESSING = 102,
@@ -85,36 +88,38 @@ public:
         NETWORD_AUTHENTICATION_REQUIRED = 512
     };
 
-    static std::string GetStatusCodeString(HttpStatusCode code) {
+    static std::string GetStatusCodeString(HttpStatusCode code)
+    {
         switch (code)
         {
         case OK:
             /* code */
             return "OK";
-        
+
         default:
             return "";
         }
     }
 
     HttpMessage(HttpVersion version = HTTP1_1) { m_version = version; };
-    
+
     void setVersion(HttpVersion version) { m_version = version; };
 
-    static std::string GetVersionString(HttpVersion version) {
-        switch(version) {
-            case HTTP1_0:
-                return "HTTP/1.0";
-            case HTTP1_1:
-            default:
-                return "HTTP/1.1";
+    static std::string GetVersionString(HttpVersion version)
+    {
+        switch (version)
+        {
+        case HTTP1_0:
+            return "HTTP/1.0";
+        case HTTP1_1:
+        default:
+            return "HTTP/1.1";
         }
     }
 
     virtual ~HttpMessage() = default;
 
     HttpVersion getVersion() { return m_version; };
-    
 
     void setHeader(std::string key, std::string value)
     {
@@ -130,7 +135,8 @@ public:
 
     virtual std::string toString() = 0;
 
-    std::map<std::string, std::string> getHeaders() {
+    std::map<std::string, std::string> getHeaders()
+    {
         return m_headers;
     }
 

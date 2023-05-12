@@ -105,13 +105,11 @@ void HttpRequest::parseStartLine(std::string line)
     }
 };
 
-void HttpRequest::parseHeaderLine()
-{
+void HttpRequest::parseHeaderLine(){
 
 };
 
-void HttpRequest::parseBody()
-{
+void HttpRequest::parseBody(){
 
 };
 

@@ -6,10 +6,9 @@
 HttpResponse::HttpResponse(HttpVersion version)
     : HttpMessage(version), m_statusCode(OK)
 {
-    
 }
 
-void HttpResponse::sendText(const std::string& text)
+void HttpResponse::sendText(const std::string &text)
 {
     setBody(text);
 }
@@ -21,12 +20,15 @@ void HttpResponse::sendFile(const std::string &filePath)
     std::string fileContent;
     std::string line;
 
-    if(f.is_open()) {
-        while(getline(f, line)) {
+    if (f.is_open())
+    {
+        while (getline(f, line))
+        {
             fileContent += line;
         }
     }
-    else {
+    else
+    {
         perror("File not found!");
     }
 
@@ -44,26 +46,26 @@ std::string HttpResponse::toString()
 {
     std::string result;
 
-    std::string statusLine = 
+    std::string statusLine =
         Utils::JoinStrings(
-            {
-                HttpMessage::GetVersionString(getVersion()),
-                std::to_string(m_statusCode),
-                HttpMessage::GetStatusCodeString(m_statusCode)
-            }, ' ');
+            {HttpMessage::GetVersionString(getVersion()),
+             std::to_string(m_statusCode),
+             HttpMessage::GetStatusCodeString(m_statusCode)},
+            ' ');
 
-    //status line
+    // status line
     result += statusLine + "\n";
-    //headers
+    // headers
     std::map<std::string, std::string> headers = getHeaders();
-    for (auto itr = headers.begin(); itr != headers.end(); ++itr) {
+    for (auto itr = headers.begin(); itr != headers.end(); ++itr)
+    {
         std::string key = itr->first;
         std::string val = itr->second;
         result += key + ":" + val + "\n";
     }
-    //empty line
+    // empty line
     result += "\n";
-    //body
+    // body
     result += getBody();
 
     return result;

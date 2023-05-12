@@ -13,31 +13,32 @@ int main(int argc, char **argv)
 
     int port = 8080;
 
-    try {
+    try
+    {
 
-        server.addRequestHandler("/hello", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
+        server.addRequestHandler("/hello", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res)
+                                 {
             res.setStatusCode(HttpResponse::OK);
             res.setHeader("Content-Type", "text/plan");
-            res.sendText("Hello world!");
-        });
+            res.sendText("Hello world!"); });
 
-        server.addRequestHandler("/", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res) {
+        server.addRequestHandler("/", HttpRequest::GET, [](HttpRequest &req, HttpResponse &res)
+                                 {
             res.setHeader("Content-Type", "text/html");
-            res.setHeader("Connection", "Keep-Alive");
-            res.sendFile("index.html");
-        });
+            res.sendFile("index.html"); });
+
+        cout << "Listening on host: " << server.getHost()
+             << ", port: " << port << "\n";
 
         server.listen(port);
-        cout << "Listening on host: " << server.getHost()
-                            << ", port: " << port << "\n";
 
         // server.stop();
     }
-    catch(Exception::InternalServerError &err)
+    catch (Exception::InternalServerError &err)
     {
         cout << err.what() << "\n";
+        cout << "Server error. Exited!\n";
     }
-    
+
     return 0;
 }
-

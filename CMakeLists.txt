@@ -16,5 +16,4 @@ add_executable(main
     src/simple_server/simple_server.cpp
     src/simple_server/http_request.cpp
     src/simple_server/http_response.cpp
-    src/simple_server/request_manager.cpp
     src/simple_server/utils.cpp)
